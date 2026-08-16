@@ -605,13 +605,44 @@ function renderMistakes(){
 let tests=JSON.parse(localStorage.getItem('jeeTests')||'[]');
 function saveTests(){localStorage.setItem('jeeTests',JSON.stringify(tests))}
 document.getElementById('testDate').value=todayKey();
-document.getElementById('testForm').onsubmit=e=>{
+document.getElementById('testForm').addEventListener('submit', function(e){
   e.preventDefault();
-  const phy=+testPhy.value||0,chem=+testChem.value||0,maths=+testMaths.value||0;
-  tests.push({id:Date.now(),name:testName.value.trim(),date:testDate.value,phy,chem,maths,total:phy+chem+maths,accuracy:testAccuracy.value,note:testNote.value.trim()});
+
+  const name = document.getElementById('testName').value.trim();
+  const date = document.getElementById('testDate').value || todayKey();
+  const phy = Number(document.getElementById('testPhy').value) || 0;
+  const chem = Number(document.getElementById('testChem').value) || 0;
+  const maths = Number(document.getElementById('testMaths').value) || 0;
+  const accuracy = document.getElementById('testAccuracy').value.trim();
+  const note = document.getElementById('testNote').value.trim();
+
+  if(!name){
+    toast('Please enter the test name');
+    return;
+  }
+
+  tests.push({
+    id: Date.now(),
+    name,
+    date,
+    phy,
+    chem,
+    maths,
+    total: phy + chem + maths,
+    accuracy,
+    note
+  });
+
   tests.sort((a,b)=>b.date.localeCompare(a.date));
-  saveTests();e.target.reset();testDate.value=todayKey();toast('Test result saved 📈');renderTests();
-};
+  saveTests();
+
+  this.reset();
+  document.getElementById('testDate').value=todayKey();
+
+  renderTests();
+  toast('Test result saved 📈');
+});
+
 function renderTests(){
   const total=tests.length,avg=total?Math.round(tests.reduce((a,x)=>a+x.total,0)/total):0,best=total?Math.max(...tests.map(x=>x.total)):0;
   document.getElementById('testTotal').textContent=total;
