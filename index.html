@@ -371,8 +371,6 @@ function render(){
  document.getElementById('todayText').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  renderDashboard();renderTopics();renderTargets();renderMistakes();renderTests();renderAnalytics();
 }
-render();
-
 
 let timerMode='focus', focusMinutes=60, remaining=3600, timerId=null;
 let focusSessions=Number(localStorage.getItem('pomodoroSessions')||0);
@@ -663,6 +661,7 @@ function renderTests(){
 function deleteTest(id){tests=tests.filter(x=>x.id!==id);saveTests();renderTests()}
 function clearTests(){if(confirm('Delete all test results?')){tests=[];saveTests();renderTests();toast('Test history cleared')}}
 
+render();
 </script>
 </body>
 </html>
