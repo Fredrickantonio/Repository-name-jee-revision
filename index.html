@@ -46,6 +46,18 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
 .timer-stat{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:12px}
 .timer-stat b{color:var(--text)}
 @media(max-width:650px){.subject-summary{grid-template-columns:1fr}.bar-chart{gap:5px}.bar-label{font-size:9px}.analytics-tabs{width:100%}.analytics-tab{flex:1;padding:8px 6px}}
+
+/* JEE planning / mistake / test tracker */
+.target-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.target-card{background:var(--panel2);border:1px solid var(--border);border-radius:13px;padding:15px}
+.target-card label{display:block;color:var(--muted);font-size:11px;font-weight:700;margin-bottom:7px}
+.target-card input{width:100%;padding:10px;border:1px solid var(--border);background:#0e1118;color:var(--text);border-radius:8px}
+.progress-wrap{margin-top:16px}.progress-track{height:9px;background:#252a35;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:var(--accent);border-radius:99px;width:0}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.full{grid-column:1/-1}
+.table-wrap{overflow:auto}.data-table{width:100%;border-collapse:collapse;min-width:700px}.data-table th,.data-table td{text-align:left;padding:12px;border-bottom:1px solid var(--border);font-size:13px}.data-table th{color:var(--muted);font-size:11px;text-transform:uppercase}.score{font-weight:800}.trend-up{color:#6ee7a0}.trend-down{color:#fca5a5}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.filter-row select,.filter-row input{padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:#0e1118;color:var(--text)}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mini-stat{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:15px}.mini-stat b{font-size:23px;display:block;margin-top:5px}.mistake-card{padding:15px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;margin:9px 0}.mistake-meta{color:var(--muted);font-size:11px}.mistake-card h3{font-size:14px;margin:5px 0}.reason{display:inline-block;padding:4px 7px;border-radius:6px;background:#2a2039;color:#c4b5fd;font-size:10px;margin-top:7px}
+@media(max-width:800px){.target-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -58,6 +70,8 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
     <button onclick="showPage('topics',this)">▣ &nbsp; All Topics</button>
     <button onclick="showPage('timer',this)">◷ &nbsp; Pomodoro Timer</button>
     <button onclick="showPage('analytics',this)">▥ &nbsp; Study Analytics</button>
+    <button onclick="showPage('mistakes',this)">✕ &nbsp; Mistake Bank</button>
+    <button onclick="showPage('tests',this)">▤ &nbsp; Test Tracker</button>
   </nav>
 </aside>
 
@@ -68,6 +82,8 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
   <button class="btn ghost" onclick="showPage('topics')">Topics</button>
   <button class="btn ghost" onclick="showPage('timer')">Timer</button>
 <button class="btn ghost" onclick="showPage('analytics')">Analytics</button>
+<button class="btn ghost" onclick="showPage('mistakes')">Mistakes</button>
+<button class="btn ghost" onclick="showPage('tests')">Tests</button>
 </div>
 
 <section id="dashboard" class="page active">
@@ -80,6 +96,17 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
     <div class="stat"><div class="label">Topics studied</div><div class="num" id="topicStat">0</div></div>
     <div class="stat"><div class="label">Revisions done</div><div class="num" id="doneStat">0</div></div>
     <div class="stat"><div class="label">Questions solved</div><div class="num" id="qStat">0</div></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="section-head"><h2>🎯 Today's targets</h2><span class="pill" id="targetPercent">0%</span></div>
+    <div class="target-grid">
+      <div class="target-card"><label>PHYSICS QUESTIONS</label><input id="targetPhy" type="number" min="0" value="0" onchange="saveTargets()"></div>
+      <div class="target-card"><label>CHEMISTRY QUESTIONS</label><input id="targetChem" type="number" min="0" value="0" onchange="saveTargets()"></div>
+      <div class="target-card"><label>MATHS QUESTIONS</label><input id="targetMaths" type="number" min="0" value="0" onchange="saveTargets()"></div>
+      <div class="target-card"><label>STUDY HOURS</label><input id="targetHours" type="number" min="0" step="0.5" value="0" onchange="saveTargets()"></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" id="targetProgress"></div></div><div class="date" style="margin-top:7px" id="targetText">Set your targets above.</div></div>
   </div>
   <div class="layout">
     <div class="card"><div class="section-head"><h2>🔔 Today's revisions</h2><span class="pill" id="duePill">0 due</span></div><div id="todayList"></div></div>
@@ -111,6 +138,72 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
 
 
 
+
+<section id="mistakes" class="page">
+  <div class="top">
+    <div><div class="eyebrow">LEARN FROM EVERY WRONG QUESTION</div><h1>Mistake Bank</h1><div class="date">Record the reason, fix it, and revisit your weak points.</div></div>
+    <button class="btn primary" onclick="document.getElementById('mistakeFormCard').scrollIntoView({behavior:'smooth'})">＋ Add Mistake</button>
+  </div>
+
+  <div class="mini-grid">
+    <div class="mini-stat"><span class="date">TOTAL MISTAKES</span><b id="mistakeTotal">0</b></div>
+    <div class="mini-stat"><span class="date">TO REVISIT</span><b id="mistakeOpen">0</b></div>
+    <div class="mini-stat"><span class="date">FIXED</span><b id="mistakeFixed">0</b></div>
+  </div>
+
+  <div class="card" id="mistakeFormCard" style="margin-top:18px">
+    <h2>Add a mistake</h2>
+    <form id="mistakeForm" class="form-grid">
+      <div class="field"><label>Subject</label><select id="mistakeSubject" required><option>Physics</option><option>Chemistry</option><option>Maths</option></select></div>
+      <div class="field"><label>Chapter</label><input id="mistakeChapter" placeholder="e.g. Electrostatics" required></div>
+      <div class="field full"><label>Question / what went wrong?</label><input id="mistakeQuestion" placeholder="e.g. Used wrong sign convention in potential" required></div>
+      <div class="field"><label>Reason</label><select id="mistakeReason"><option>Concept gap</option><option>Calculation</option><option>Silly mistake</option><option>Didn't know approach</option><option>Time pressure</option></select></div>
+      <div class="field"><label>Fix / takeaway</label><input id="mistakeFix" placeholder="Write the rule or idea to remember"></div>
+      <button class="btn primary full" type="submit">Save mistake →</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="section-head"><h2>Recent mistakes</h2><span class="pill" id="mistakeFilterCount">0</span></div>
+    <div class="filter-row">
+      <select id="mistakeFilterSubject" onchange="renderMistakes()"><option value="">All subjects</option><option>Physics</option><option>Chemistry</option><option>Maths</option></select>
+      <select id="mistakeFilterStatus" onchange="renderMistakes()"><option value="">All</option><option value="open">To revisit</option><option value="fixed">Fixed</option></select>
+    </div>
+    <div id="mistakeList"></div>
+  </div>
+</section>
+
+<section id="tests" class="page">
+  <div class="top">
+    <div><div class="eyebrow">JEE TEST PERFORMANCE</div><h1>Test Tracker</h1><div class="date">Keep your Excel-style test history inside the same JEE dashboard.</div></div>
+    <button class="btn danger" onclick="clearTests()">Clear tests</button>
+  </div>
+
+  <div class="mini-grid">
+    <div class="mini-stat"><span class="date">TESTS</span><b id="testTotal">0</b></div>
+    <div class="mini-stat"><span class="date">AVERAGE TOTAL</span><b id="testAvg">0</b></div>
+    <div class="mini-stat"><span class="date">BEST TOTAL</span><b id="testBest">0</b></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Add test result</h2>
+    <form id="testForm" class="form-grid">
+      <div class="field"><label>Test name</label><input id="testName" placeholder="e.g. Allen Major Test 4" required></div>
+      <div class="field"><label>Date</label><input id="testDate" type="date" required></div>
+      <div class="field"><label>Physics</label><input id="testPhy" type="number" min="0" value="0" required></div>
+      <div class="field"><label>Chemistry</label><input id="testChem" type="number" min="0" value="0" required></div>
+      <div class="field"><label>Maths</label><input id="testMaths" type="number" min="0" value="0" required></div>
+      <div class="field"><label>Accuracy % (optional)</label><input id="testAccuracy" type="number" min="0" max="100" step="0.1" placeholder="e.g. 82.5"></div>
+      <div class="field full"><label>What should improve?</label><input id="testNote" placeholder="e.g. Maths speed, Physics silly errors"></div>
+      <button class="btn primary full" type="submit">Save test →</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="section-head"><h2>Test history</h2><span class="pill">Newest first</span></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Test</th><th>Physics</th><th>Chemistry</th><th>Maths</th><th>Total</th><th>Accuracy</th><th></th></tr></thead><tbody id="testTable"></tbody></table></div>
+  </div>
+</section>
 <section id="analytics" class="page">
   <div class="top">
     <div><div class="eyebrow">YOUR STUDY DATA</div><h1>Study Analytics</h1><div class="date">Only time spent while the focus timer is running is counted.</div></div>
@@ -276,7 +369,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;',
 function clearAll(){if(confirm('Delete all your saved JEE revision data?')){data=[];save();render();toast('All data cleared')}}
 function render(){
  document.getElementById('todayText').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
- renderDashboard();renderTopics();
+ renderDashboard();renderTopics();renderTargets();renderMistakes();renderTests();renderAnalytics();
 }
 render();
 
@@ -430,6 +523,114 @@ function rangeSecondsSubject(start,end,subject){
 }
 updateTimer();
 renderAnalytics();
+
+
+/* ===== Targets ===== */
+let targets=JSON.parse(localStorage.getItem('jeeDailyTargets')||'{"date":"","phy":0,"chem":0,"maths":0,"hours":0}');
+function ensureTargets(){
+  if(targets.date!==todayKey()){
+    targets={date:todayKey(),phy:0,chem:0,maths:0,hours:0};
+    localStorage.setItem('jeeDailyTargets',JSON.stringify(targets));
+  }
+}
+function saveTargets(){
+  ensureTargets();
+  targets.phy=+document.getElementById('targetPhy').value||0;
+  targets.chem=+document.getElementById('targetChem').value||0;
+  targets.maths=+document.getElementById('targetMaths').value||0;
+  targets.hours=+document.getElementById('targetHours').value||0;
+  localStorage.setItem('jeeDailyTargets',JSON.stringify(targets));
+  renderTargets();
+}
+function renderTargets(){
+  ensureTargets();
+  ['Phy','Chem','Maths','Hours'].forEach(k=>{
+    const e=document.getElementById('target'+k);
+    if(e)e.value=targets[k.toLowerCase()]||0;
+  });
+  const qp=data.filter(x=>x.studied===todayKey()).reduce((a,x)=>{
+    if(x.subject==='Physics')a.phy+=x.questions;
+    if(x.subject==='Chemistry')a.chem+=x.questions;
+    if(x.subject==='Maths')a.maths+=x.questions;
+    return a;
+  },{phy:0,chem:0,maths:0});
+  const studySec=secondsForDate(todayKey());
+  const targetSecs=targets.hours*3600;
+  const parts=[];
+  if(targets.phy)parts.push(Math.min(1,qp.phy/targets.phy));
+  if(targets.chem)parts.push(Math.min(1,qp.chem/targets.chem));
+  if(targets.maths)parts.push(Math.min(1,qp.maths/targets.maths));
+  if(targets.hours)parts.push(Math.min(1,studySec/targetSecs));
+  const pct=parts.length?Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100):0;
+  const p=document.getElementById('targetProgress');if(p)p.style.width=pct+'%';
+  const tp=document.getElementById('targetPercent');if(tp)tp.textContent=pct+'%';
+  const tt=document.getElementById('targetText');
+  if(tt)tt.textContent=`Physics ${qp.phy}/${targets.phy||'—'} Q • Chemistry ${qp.chem}/${targets.chem||'—'} Q • Maths ${qp.maths}/${targets.maths||'—'} Q • Time ${fmtTime(studySec)}/${targets.hours?targets.hours+'h':'—'}`;
+}
+
+/* ===== Mistakes ===== */
+let mistakes=JSON.parse(localStorage.getItem('jeeMistakes')||'[]');
+function saveMistakes(){localStorage.setItem('jeeMistakes',JSON.stringify(mistakes))}
+document.getElementById('mistakeForm').onsubmit=e=>{
+  e.preventDefault();
+  mistakes.unshift({id:Date.now(),date:todayKey(),subject:mistakeSubject.value,chapter:mistakeChapter.value.trim(),question:mistakeQuestion.value.trim(),reason:mistakeReason.value,fix:mistakeFix.value.trim(),fixed:false});
+  saveMistakes();e.target.reset();toast('Mistake saved — revisit it later ✓');renderMistakes();
+};
+function toggleMistake(id){
+  const x=mistakes.find(m=>m.id===id);if(x)x.fixed=!x.fixed;saveMistakes();renderMistakes();
+}
+function deleteMistake(id){mistakes=mistakes.filter(x=>x.id!==id);saveMistakes();renderMistakes()}
+function renderMistakes(){
+  const sf=document.getElementById('mistakeFilterSubject')?.value||'',st=document.getElementById('mistakeFilterStatus')?.value||'';
+  const list=mistakes.filter(x=>(!sf||x.subject===sf)&&(!st||(st==='fixed'?x.fixed:!x.fixed)));
+  document.getElementById('mistakeTotal').textContent=mistakes.length;
+  document.getElementById('mistakeOpen').textContent=mistakes.filter(x=>!x.fixed).length;
+  document.getElementById('mistakeFixed').textContent=mistakes.filter(x=>x.fixed).length;
+  document.getElementById('mistakeFilterCount').textContent=list.length;
+  const box=document.getElementById('mistakeList');
+  if(!list.length){box.innerHTML='<div class="empty">No mistakes here. Keep solving. 💪</div>';return}
+  box.innerHTML=list.map(x=>`<div class="mistake-card" style="${x.fixed?'opacity:.58':''}">
+    <div class="mistake-meta">${x.subject} • ${esc(x.chapter)} • ${nice(x.date)}</div>
+    <h3>${esc(x.question)}</h3>
+    <span class="reason">${esc(x.reason)}</span>
+    ${x.fix?`<p style="color:var(--muted);font-size:12px;margin:10px 0 0"><b style="color:white">Fix:</b> ${esc(x.fix)}</p>`:''}
+    <div class="actions" style="margin-top:10px">
+      <button class="btn ${x.fixed?'ghost':'success'}" onclick="toggleMistake(${x.id})">${x.fixed?'↩ Reopen':'✓ Fixed'}</button>
+      <button class="btn danger" onclick="deleteMistake(${x.id})">Delete</button>
+    </div>
+  </div>`).join('');
+}
+
+/* ===== Tests ===== */
+let tests=JSON.parse(localStorage.getItem('jeeTests')||'[]');
+function saveTests(){localStorage.setItem('jeeTests',JSON.stringify(tests))}
+document.getElementById('testDate').value=todayKey();
+document.getElementById('testForm').onsubmit=e=>{
+  e.preventDefault();
+  const phy=+testPhy.value||0,chem=+testChem.value||0,maths=+testMaths.value||0;
+  tests.push({id:Date.now(),name:testName.value.trim(),date:testDate.value,phy,chem,maths,total:phy+chem+maths,accuracy:testAccuracy.value,note:testNote.value.trim()});
+  tests.sort((a,b)=>b.date.localeCompare(a.date));
+  saveTests();e.target.reset();testDate.value=todayKey();toast('Test result saved 📈');renderTests();
+};
+function renderTests(){
+  const total=tests.length,avg=total?Math.round(tests.reduce((a,x)=>a+x.total,0)/total):0,best=total?Math.max(...tests.map(x=>x.total)):0;
+  document.getElementById('testTotal').textContent=total;
+  document.getElementById('testAvg').textContent=avg;
+  document.getElementById('testBest').textContent=best;
+  const tb=document.getElementById('testTable');
+  if(!tests.length){tb.innerHTML='<tr><td colspan="8" class="empty">No tests recorded yet.</td></tr>';return}
+  tb.innerHTML=tests.map((x,i)=>{
+    const prev=tests[i+1],trend=prev?(x.total>prev.total?'trend-up':x.total<prev.total?'trend-down':''):'';
+    return `<tr>
+      <td>${nice(x.date)}</td><td><b>${esc(x.name)}</b>${x.note?`<br><small style="color:var(--muted)">${esc(x.note)}</small>`:''}</td>
+      <td>${x.phy}</td><td>${x.chem}</td><td>${x.maths}</td>
+      <td class="score ${trend}">${x.total}</td><td>${x.accuracy?x.accuracy+'%':'—'}</td>
+      <td><button class="btn danger" onclick="deleteTest(${x.id})">×</button></td>
+    </tr>`;
+  }).join('');
+}
+function deleteTest(id){tests=tests.filter(x=>x.id!==id);saveTests();renderTests()}
+function clearTests(){if(confirm('Delete all test results?')){tests=[];saveTests();renderTests();toast('Test history cleared')}}
 
 </script>
 </body>
