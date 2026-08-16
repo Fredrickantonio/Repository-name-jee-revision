@@ -14,6 +14,38 @@
 button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{width:235px;border-right:1px solid var(--border);padding:24px 16px;position:fixed;height:100vh;background:#0d1016}.brand{font-weight:800;font-size:20px;padding:8px 10px 28px}.brand span{color:var(--accent2)}.nav button{display:block;width:100%;background:none;border:0;color:var(--muted);text-align:left;padding:12px 13px;border-radius:10px;margin:4px 0;cursor:pointer}.nav button.active,.nav button:hover{background:var(--panel2);color:var(--text)}.main{margin-left:235px;width:calc(100% - 235px);padding:34px;max-width:1250px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.eyebrow{color:var(--accent2);font-size:13px;font-weight:700}.top h1{margin:5px 0;font-size:30px}.date{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat,.card{background:rgba(18,21,29,.92);border:1px solid var(--border);border-radius:16px}.stat{padding:18px}.stat .label{color:var(--muted);font-size:13px}.stat .num{font-size:28px;font-weight:800;margin-top:8px}.layout{display:grid;grid-template-columns:1.4fr .9fr;gap:18px;margin-top:18px}.card{padding:22px}.card h2{font-size:18px;margin:0 0 16px}.section-head{display:flex;justify-content:space-between;align-items:center}.pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#241c35;color:var(--accent2)}.revision{padding:15px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;gap:12px;align-items:center}.revision .subject{font-size:11px;color:var(--accent2);font-weight:700}.revision h3{margin:4px 0;font-size:15px}.revision p{margin:0;color:var(--muted);font-size:12px}.actions{display:flex;gap:7px}.btn{border:0;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:700}.primary{background:var(--accent);color:white}.ghost{background:#222734;color:#d9deea}.success{background:#12351f;color:#6ee7a0}.danger{background:#351619;color:#fca5a5}.form{display:grid;gap:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input,.field select{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:#0e1118;color:var(--text);outline:none}.field input:focus,.field select:focus{border-color:var(--accent)}.empty{text-align:center;color:var(--muted);padding:28px 8px}.topic{padding:14px 0;border-bottom:1px solid var(--border)}.topic:last-child{border-bottom:0}.topic-top{display:flex;justify-content:space-between;gap:12px}.topic h3{margin:3px 0;font-size:15px}.topic small{color:var(--muted)}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.badge{font-size:11px;padding:5px 7px;background:#202530;border-radius:7px;color:#b9c1cf}.badge.done{opacity:.45;text-decoration:line-through}.page{display:none}.page.active{display:block}.toast{position:fixed;right:20px;bottom:20px;background:#1b202b;border:1px solid var(--border);padding:13px 16px;border-radius:11px;display:none;box-shadow:0 12px 30px #0008}.mobile-nav{display:none}
 @media(max-width:900px){.sidebar{display:none}.main{margin:0;width:100%;padding:20px}.grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.mobile-nav{display:flex;gap:6px;overflow:auto;margin-bottom:18px}.mobile-nav button{white-space:nowrap}.row{grid-template-columns:1fr}}
 @media(max-width:500px){.grid{grid-template-columns:1fr 1fr}.top h1{font-size:24px}.revision{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions button{flex:1}}
+
+.timer-wrap{max-width:650px;margin:20px auto}.timer-card{text-align:center;padding:34px}.mode{color:var(--accent2);font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.timer-display{font-size:92px;font-weight:800;letter-spacing:3px;margin:20px 0 24px;font-variant-numeric:tabular-nums}.timer-controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.timer-presets{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0 5px}.preset{background:#202530;color:#cbd5e1;border:1px solid var(--border);padding:8px 12px;border-radius:9px;cursor:pointer}.preset.active{background:#2a2042;color:#c4b5fd;border-color:#6d4bc0}.timer-info{color:var(--muted);font-size:13px;line-height:1.6;margin-top:20px}.session-count{margin-top:14px;color:#9ca3af;font-size:13px}
+@media(max-width:500px){.timer-display{font-size:68px}}
+
+/* ===== Study Analytics ===== */
+.analytics-wrap{margin-top:18px}
+.analytics-tabs{display:flex;gap:6px;background:#10131b;border:1px solid var(--border);padding:5px;border-radius:11px;width:max-content}
+.analytics-tab{border:0;background:transparent;color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700}
+.analytics-tab.active{background:#272036;color:#c4b5fd}
+.analytics-controls{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:16px}
+.chart-card{padding:22px;overflow:hidden}
+.chart-title{font-size:17px;font-weight:800;margin:0 0 18px}
+.bar-chart{height:290px;display:flex;align-items:flex-end;gap:10px;border-bottom:1px solid var(--border);padding:10px 4px 0}
+.bar-col{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:32px}
+.bar-value{font-size:10px;color:var(--muted);height:18px}
+.bar-stack{width:min(54px,80%);height:calc(var(--pct) * 1%);min-height:2px;border-radius:7px 7px 0 0;overflow:hidden;background:#8b5cf6;display:flex;flex-direction:column-reverse}
+.bar-subject{width:100%;background:#8b5cf6}
+.bar-subject.chem{background:#f59e0b}
+.bar-subject.maths{background:#22c55e}
+.bar-label{font-size:10px;color:var(--muted);margin-top:8px;white-space:nowrap}
+.legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;color:var(--muted);font-size:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:3px;background:#8b5cf6}.dot.chem{background:#f59e0b}.dot.maths{background:#22c55e}
+.subject-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.subject-box{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:15px}
+.subject-box .slabel{font-size:11px;color:var(--muted);font-weight:700}
+.subject-box .stime{font-size:22px;font-weight:800;margin-top:5px}
+.timer-subject{max-width:240px;margin:0 auto 8px}
+.timer-subject select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:#0e1118;color:var(--text)}
+.timer-stat{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:12px}
+.timer-stat b{color:var(--text)}
+@media(max-width:650px){.subject-summary{grid-template-columns:1fr}.bar-chart{gap:5px}.bar-label{font-size:9px}.analytics-tabs{width:100%}.analytics-tab{flex:1;padding:8px 6px}}
 </style>
 </head>
 <body>
@@ -24,6 +56,8 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
     <button class="active" onclick="showPage('dashboard',this)">⌂ &nbsp; Dashboard</button>
     <button onclick="showPage('add',this)">＋ &nbsp; Add Study</button>
     <button onclick="showPage('topics',this)">▣ &nbsp; All Topics</button>
+    <button onclick="showPage('timer',this)">◷ &nbsp; Pomodoro Timer</button>
+    <button onclick="showPage('analytics',this)">▥ &nbsp; Study Analytics</button>
   </nav>
 </aside>
 
@@ -32,6 +66,8 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
   <button class="btn primary" onclick="showPage('dashboard')">Dashboard</button>
   <button class="btn ghost" onclick="showPage('add')">Add Study</button>
   <button class="btn ghost" onclick="showPage('topics')">Topics</button>
+  <button class="btn ghost" onclick="showPage('timer')">Timer</button>
+<button class="btn ghost" onclick="showPage('analytics')">Analytics</button>
 </div>
 
 <section id="dashboard" class="page active">
@@ -72,6 +108,81 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
   <div class="top"><div><div class="eyebrow">YOUR HISTORY</div><h1>All topics</h1></div><button class="btn danger" onclick="clearAll()">Clear all</button></div>
   <div class="card"><div id="allTopics"></div></div>
 </section>
+
+
+
+<section id="analytics" class="page">
+  <div class="top">
+    <div><div class="eyebrow">YOUR STUDY DATA</div><h1>Study Analytics</h1><div class="date">Only time spent while the focus timer is running is counted.</div></div>
+    <button class="btn ghost" onclick="renderAnalytics()">↻ Refresh</button>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="label">Today</div><div class="num" id="anaToday">0m</div></div>
+    <div class="stat"><div class="label">This week</div><div class="num" id="anaWeek">0h</div></div>
+    <div class="stat"><div class="label">This month</div><div class="num" id="anaMonth">0h</div></div>
+    <div class="stat"><div class="label">Total focus</div><div class="num" id="anaTotal">0h</div></div>
+  </div>
+
+  <div class="analytics-wrap">
+    <div class="card chart-card">
+      <div class="analytics-controls">
+        <div>
+          <div class="chart-title">Focus Hours</div>
+          <div class="date" id="chartRange">This week</div>
+        </div>
+        <div class="analytics-tabs">
+          <button class="analytics-tab active" onclick="setAnalyticsRange('week',this)">Week</button>
+          <button class="analytics-tab" onclick="setAnalyticsRange('month',this)">Month</button>
+        </div>
+      </div>
+      <div class="bar-chart" id="focusChart"></div>
+      <div class="legend">
+        <span><i class="dot"></i> Physics</span>
+        <span><i class="dot chem"></i> Chemistry</span>
+        <span><i class="dot maths"></i> Maths</span>
+      </div>
+      <div class="subject-summary">
+        <div class="subject-box"><div class="slabel">PHYSICS</div><div class="stime" id="anaPhy">0h</div></div>
+        <div class="subject-box"><div class="slabel">CHEMISTRY</div><div class="stime" id="anaChem">0h</div></div>
+        <div class="subject-box"><div class="slabel">MATHS</div><div class="stime" id="anaMaths">0h</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="timer" class="page">
+  <div class="top">
+    <div><div class="eyebrow">FOCUS MODE</div><h1>Pomodoro Timer</h1><div class="date">Your actual focus time is automatically recorded.</div></div>
+  </div>
+  <div class="timer-wrap">
+    <div class="card timer-card">
+      <div class="timer-subject">
+        <select id="timerSubject" aria-label="Subject">
+          <option>Physics</option><option>Chemistry</option><option>Maths</option>
+        </select>
+      </div>
+      <div class="mode" id="timerMode">Focus</div>
+      <div class="timer-display" id="timerDisplay">60:00</div>
+      <div class="timer-controls">
+        <button class="btn primary" id="timerStart" onclick="toggleTimer()">▶ Start</button>
+        <button class="btn ghost" onclick="resetTimer()">↺ Reset</button>
+        <button class="btn ghost" onclick="skipTimer()">Skip →</button>
+      </div>
+      <div class="timer-presets">
+        <button class="preset" data-focus="25" onclick="setFocus(25,this)">25 min</button>
+        <button class="preset" data-focus="50" onclick="setFocus(50,this)">50 min</button>
+        <button class="preset active" data-focus="60" onclick="setFocus(60,this)">60 min</button>
+        <button class="preset" data-focus="90" onclick="setFocus(90,this)">90 min</button>
+      </div>
+      <div class="timer-stat">
+        <span>Today: <b id="timerToday">0m</b></span>
+        <span>Sessions: <b id="sessionCount">0</b></span>
+      </div>
+      <div class="timer-info">Focus sessions automatically add to <b style="color:white">Study Analytics</b>. A normal break is 5 minutes; after 4 completed focus sessions, the next break is 15 minutes.</div>
+    </div>
+  </div>
+</section>
+
 </main>
 </div>
 <div class="toast" id="toast"></div>
@@ -99,12 +210,34 @@ function showPage(id,btn){
 document.getElementById('studyForm').onsubmit=e=>{
  e.preventDefault();
  let studied=todayKey();
+ const subject=document.getElementById('subject').value;
+ const chapter=document.getElementById('chapter').value.trim();
+ const topic=document.getElementById('topic').value.trim();
+ const questions=+document.getElementById('questions').value||0;
+
+ // Same subject + chapter + topic on the same day = one study session.
+ const existing=data.find(x =>
+   x.subject.toLowerCase()===subject.toLowerCase() &&
+   x.chapter.toLowerCase()===chapter.toLowerCase() &&
+   x.topic.toLowerCase()===topic.toLowerCase() &&
+   x.studied===studied
+ );
+
+ if(existing){
+   existing.questions += questions;
+   save();
+   e.target.reset();
+   toast('Same lesson today — merged into the existing session ✓');
+   showPage('dashboard');
+   return;
+ }
+
  let item={
    id:Date.now(),
-   subject:document.getElementById('subject').value,
-   chapter:document.getElementById('chapter').value.trim(),
-   topic:document.getElementById('topic').value.trim(),
-   questions:+document.getElementById('questions').value||0,
+   subject,
+   chapter,
+   topic,
+   questions,
    studied,
    revisions:intervals.map((days,i)=>({n:i+1,date:addDays(studied,days),done:false}))
  };
@@ -146,6 +279,158 @@ function render(){
  renderDashboard();renderTopics();
 }
 render();
+
+
+let timerMode='focus', focusMinutes=60, remaining=3600, timerId=null;
+let focusSessions=Number(localStorage.getItem('pomodoroSessions')||0);
+let analyticsRange='week';
+let studyLog=JSON.parse(localStorage.getItem('jeeStudyTimeLog')||'{}');
+
+function logKey(){return todayKey()}
+function saveStudyLog(){localStorage.setItem('jeeStudyTimeLog',JSON.stringify(studyLog))}
+function addFocusSecond(subject){
+  const d=logKey();
+  if(!studyLog[d])studyLog[d]={Physics:0,Chemistry:0,Maths:0};
+  if(!studyLog[d][subject])studyLog[d][subject]=0;
+  studyLog[d][subject]++;
+  saveStudyLog();
+}
+function secondsForDate(date,subject){
+  const x=studyLog[date]||{};
+  return subject ? (x[subject]||0) : ((x.Physics||0)+(x.Chemistry||0)+(x.Maths||0));
+}
+function fmtTime(sec){
+  sec=Math.max(0,Math.round(sec));
+  const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);
+  if(h)return `${h}h ${m}m`;
+  if(m)return `${m}m`;
+  return `${sec}s`;
+}
+function dateObj(s){return new Date(s+'T00:00:00')}
+function dateKeyObj(d){return key(d)}
+function getDaysBack(n){
+  const out=[],d=new Date();
+  for(let i=n-1;i>=0;i--){let x=new Date(d);x.setDate(d.getDate()-i);out.push(dateKeyObj(x))}
+  return out;
+}
+function weekStart(){
+  const d=new Date(),day=d.getDay(),diff=(day+6)%7;
+  d.setDate(d.getDate()-diff);d.setHours(0,0,0,0);return d;
+}
+function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1)}
+function rangeSeconds(start,end){
+  let total=0,cur=new Date(start);
+  while(cur<=end){total+=secondsForDate(key(cur));cur.setDate(cur.getDate()+1)}
+  return total;
+}
+function updateTimer(){
+  const m=Math.floor(remaining/60),sec=remaining%60;
+  document.getElementById('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  document.getElementById('timerMode').textContent=timerMode==='focus'?'Focus':'Break';
+  document.getElementById('timerStart').textContent=timerId?'⏸ Pause':'▶ Start';
+  document.getElementById('sessionCount').textContent=focusSessions;
+  document.getElementById('timerToday').textContent=fmtTime(secondsForDate(todayKey()));
+}
+function toggleTimer(){
+  if(timerId){clearInterval(timerId);timerId=null;updateTimer();return}
+  timerId=setInterval(()=>{
+    if(timerMode==='focus')addFocusSecond(document.getElementById('timerSubject').value);
+    remaining--;
+    if(remaining<=0){clearInterval(timerId);timerId=null;finishTimer()}
+    updateTimer();
+  },1000);
+  updateTimer();
+}
+function finishTimer(){
+  if(timerMode==='focus'){
+    focusSessions++;
+    localStorage.setItem('pomodoroSessions',focusSessions);
+    timerMode='break';
+    remaining=(focusSessions%4===0?15:5)*60;
+    toast(focusSessions%4===0?'4 focus sessions done! Take a 15-minute break 🧘':'Focus session complete! Take a 5-minute break ☕');
+  }else{
+    timerMode='focus';remaining=focusMinutes*60;
+    toast('Break over — back to focus 🚀');
+  }
+  updateTimer();
+  renderAnalytics();
+}
+function resetTimer(){
+  if(timerId)clearInterval(timerId);
+  timerId=null;timerMode='focus';remaining=focusMinutes*60;updateTimer();
+}
+function skipTimer(){
+  if(timerId)clearInterval(timerId);
+  timerId=null;finishTimer();
+}
+function setFocus(min,el){
+  focusMinutes=min;
+  document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');resetTimer();
+}
+function setAnalyticsRange(range,el){
+  analyticsRange=range;
+  document.querySelectorAll('.analytics-tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderAnalytics();
+}
+function renderAnalytics(){
+  const today=secondsForDate(todayKey());
+  const ws=weekStart(), ms=monthStart(), now=new Date();
+  document.getElementById('anaToday').textContent=fmtTime(today);
+  document.getElementById('anaWeek').textContent=fmtTime(rangeSeconds(ws,now));
+  document.getElementById('anaMonth').textContent=fmtTime(rangeSeconds(ms,now));
+  let total=0;Object.keys(studyLog).forEach(d=>total+=secondsForDate(d));
+  document.getElementById('anaTotal').textContent=fmtTime(total);
+
+  let dates=[],labels=[];
+  if(analyticsRange==='week'){
+    dates=getDaysBack(7);
+    labels=dates.map(d=>dateObj(d).toLocaleDateString('en-IN',{weekday:'short'}));
+    document.getElementById('chartRange').textContent='This week';
+  }else{
+    const y=now.getFullYear(),m=now.getMonth(),days=new Date(y,m+1,0).getDate();
+    dates=[];
+    for(let i=1;i<=days;i++)dates.push(`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`);
+    labels=dates.map((d,i)=> (i%5===0||i===days-1)?String(i+1):'');
+    document.getElementById('chartRange').textContent=now.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  }
+
+  const vals=dates.map(d=>secondsForDate(d));
+  const max=Math.max(...vals,1);
+  const chart=document.getElementById('focusChart');
+  chart.innerHTML=dates.map((d,i)=>{
+    const p=(vals[i]/max)*100;
+    const phy=secondsForDate(d,'Physics'),chem=secondsForDate(d,'Chemistry'),maths=secondsForDate(d,'Maths');
+    const totalDay=Math.max(phy+chem+maths,1);
+    return `<div class="bar-col">
+      <div class="bar-value">${vals[i]?fmtTime(vals[i]):''}</div>
+      <div class="bar-stack" style="--pct:${p}">
+        <div class="bar-subject maths" style="height:${maths/totalDay*100}%"></div>
+        <div class="bar-subject chem" style="height:${chem/totalDay*100}%"></div>
+        <div class="bar-subject" style="height:${phy/totalDay*100}%"></div>
+      </div>
+      <div class="bar-label">${labels[i]}</div>
+    </div>`;
+  }).join('');
+
+  let start=analyticsRange==='week'?ws:ms;
+  const phy=rangeSecondsSubject(start,now,'Physics');
+  const chem=rangeSecondsSubject(start,now,'Chemistry');
+  const maths=rangeSecondsSubject(start,now,'Maths');
+  document.getElementById('anaPhy').textContent=fmtTime(phy);
+  document.getElementById('anaChem').textContent=fmtTime(chem);
+  document.getElementById('anaMaths').textContent=fmtTime(maths);
+}
+function rangeSecondsSubject(start,end,subject){
+  let total=0,cur=new Date(start);cur.setHours(0,0,0,0);
+  const last=new Date(end);last.setHours(0,0,0,0);
+  while(cur<=last){total+=secondsForDate(key(cur),subject);cur.setDate(cur.getDate()+1)}
+  return total;
+}
+updateTimer();
+renderAnalytics();
+
 </script>
 </body>
 </html>
