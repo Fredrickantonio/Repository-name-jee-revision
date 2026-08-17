@@ -663,5 +663,63 @@ function clearTests(){if(confirm('Delete all test results?')){tests=[];saveTests
 
 render();
 </script>
+<datalist id="jeeLessonList"></datalist>
+
+<script>
+(function(){
+  const lessons = {"Physics": ["Units & Measurements", "Kinematics", "Laws of Motion", "Work, Energy & Power", "Centre of Mass & Collisions", "Rotational Motion", "Gravitation", "Properties of Solids", "Properties of Fluids", "Thermal Properties", "Thermodynamics", "Kinetic Theory", "Oscillations", "Waves", "Electrostatics", "Capacitance", "Current Electricity", "Moving Charges & Magnetism", "Magnetism & Matter", "Electromagnetic Induction", "Alternating Current", "Electromagnetic Waves", "Ray Optics", "Wave Optics", "Dual Nature", "Atoms", "Nuclei", "Semiconductors"], "Chemistry": ["Some Basic Concepts / Mole Concept", "Atomic Structure", "Periodic Table", "Chemical Bonding", "States of Matter", "Thermodynamics", "Equilibrium", "Redox Reactions", "Solutions", "Electrochemistry", "Chemical Kinetics", "Surface Chemistry", "p-Block", "d- and f-Block", "Coordination Compounds", "Organic Chemistry Basics", "Hydrocarbons", "Haloalkanes & Haloarenes", "Alcohols, Phenols & Ethers", "Aldehydes, Ketones & Carboxylic Acids", "Amines", "Biomolecules", "Polymers", "Practical Chemistry"], "Maths": ["Sets, Relations & Functions", "Quadratic Equations", "Sequences & Series", "Trigonometry", "Complex Numbers", "Permutations & Combinations", "Binomial Theorem", "Straight Lines", "Circles", "Conic Sections", "Limits & Continuity", "Differentiation", "Application of Derivatives", "Indefinite Integration", "Definite Integration", "Area Under Curves", "Differential Equations", "Matrices", "Determinants", "Vectors", "3D Geometry", "Probability", "Statistics"]};
+  const subject = document.getElementById("subject") || document.querySelector('select[name="subject"], input[name="subject"]');
+  const lesson = document.getElementById("chapter");
+  const list = document.getElementById("jeeLessonList");
+  if(!lesson || !list) return;
+  lesson.setAttribute("list","jeeLessonList");
+
+  function updateLessonList(){
+    const key = subject ? subject.value : "";
+    const arr = lessons[key] || Object.values(lessons).flat();
+    list.innerHTML = arr.map(x => '<option value="' + x.replace(/"/g,'&quot;') + '"></option>').join("");
+  }
+  if(subject) subject.addEventListener("change", updateLessonList);
+  updateLessonList();
+})();
+</script>
+
+
+<script id="AUTO_BREAK_PATCH">
+(function(){
+  // This patch watches the visible timer and switches Study -> Break at 00:00.
+  // It is intentionally isolated so existing localStorage/data logic remains untouched.
+  let switched = false;
+  function textOf(el){ return el ? (el.textContent || "").trim() : ""; }
+
+  function findTimer(){
+    const candidates = [
+      document.getElementById("timerDisplay"),
+      document.getElementById("timer"),
+      document.querySelector(".timer-display"),
+      document.querySelector("[class*='timer'][class*='display']")
+    ];
+    return candidates.find(Boolean);
+  }
+
+  function clickBreak(){
+    const buttons = [...document.querySelectorAll("button")];
+    const b = buttons.find(x => /break/i.test(x.textContent||""));
+    if(b) b.click();
+  }
+
+  setInterval(function(){
+    const el = findTimer();
+    if(!el) return;
+    const t = textOf(el);
+    if((t === "00:00" || t === "0:00") && !switched){
+      switched = true;
+      clickBreak();
+      setTimeout(()=>switched=false, 1500);
+    }
+  }, 250);
+})();
+</script>
+
 </body>
 </html>
