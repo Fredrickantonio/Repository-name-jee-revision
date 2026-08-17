@@ -128,7 +128,7 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
       </div>
       <div class="row">
         <div class="field"><label>Chapter</label><input id="chapter" placeholder="e.g. Ray Optics" required></div>
-        <div class="field"><label>Topic / lesson</label><input id="topic" placeholder="e.g. Lens combination" required></div>
+        <div class="field"><label>Topic / lesson</label><select id="topic" required><option value="">Choose lesson</option></select><div class="date" style="margin-top:6px">Choose a standard JEE lesson from the list.</div></div>
       </div>
       <button class="btn primary" type="submit">Save & schedule revisions →</button>
     </form>
@@ -192,6 +192,7 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
   <div class="card" style="margin-top:18px">
     <h2>Add test result</h2>
     <form id="testForm" class="form-grid">
+      <div class="field"><label>Test type</label><select id="testType" required><option value="Mains">JEE Main</option><option value="Advanced">JEE Advanced</option></select></div>
       <div class="field"><label>Test name</label><input id="testName" placeholder="e.g. Allen Major Test 4" required></div>
       <div class="field"><label>Date</label><input id="testDate" type="date" required></div>
       <div class="field"><label>Physics</label><input id="testPhy" type="number" min="0" value="0" required></div>
@@ -203,9 +204,11 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
     </form>
   </div>
 
+  <div class="card" style="margin-top:14px"><div class="analytics-tabs" id="testFilters" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="analytics-tab active" onclick="setTestFilter('all',this)">All</button><button type="button" class="analytics-tab" onclick="setTestFilter('Mains',this)">JEE Main</button><button type="button" class="analytics-tab" onclick="setTestFilter('Advanced',this)">JEE Advanced</button><button type="button" class="analytics-tab" onclick="setTestFilter('Unspecified',this)">Older / Unspecified</button></div></div>
+
   <div class="card" style="margin-top:18px">
     <div class="section-head"><h2>Test history</h2><span class="pill">Newest first</span></div>
-    <div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Test</th><th>Physics</th><th>Chemistry</th><th>Maths</th><th>Total</th><th>Accuracy</th><th></th></tr></thead><tbody id="testTable"></tbody></table></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Type</th><th>Test</th><th>Physics</th><th>Chemistry</th><th>Maths</th><th>Total</th><th>Accuracy</th><th></th></tr></thead><tbody id="testTable"></tbody></table></div>
   </div>
 </section>
 <section id="analytics" class="page">
@@ -310,6 +313,14 @@ function showPage(id,btn){
   if(btn)btn.classList.add('active');
   render();
 }
+
+const lessonLists={
+ Physics:["Units & Dimensions","Vectors","Kinematics 1D","Kinematics 2D","Laws of Motion","Work, Power & Energy","Circular Motion","Centre of Mass","Momentum & Collisions","Rotational Motion","Gravitation","Properties of Solids","Properties of Fluids","Thermal Properties","Thermodynamics","Kinetic Theory","SHM","Waves","Electrostatics","Capacitance","Current Electricity","Magnetic Effects of Current","Magnetism","EMI","AC","Electromagnetic Waves","Ray Optics","Wave Optics","Dual Nature","Atoms","Nuclei","Semiconductors"],
+ Chemistry:["Mole Concept","Atomic Structure","Periodic Table","Chemical Bonding","States of Matter","Thermodynamics","Chemical Equilibrium","Ionic Equilibrium","Redox Reactions","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","Coordination Compounds","Metallurgy","p-Block","d- and f-Block","Hydrogen","s-Block","GOC","Isomerism","Hydrocarbons","Haloalkanes & Haloarenes","Alcohols, Phenols & Ethers","Aldehydes & Ketones","Carboxylic Acids","Amines","Biomolecules","Polymers","Chemistry in Everyday Life","Practical Chemistry"],
+ Maths:["Sets, Relations & Functions","Basic Mathematics","Quadratic Equations","Sequence & Series","Trigonometric Functions","Trigonometric Equations","Complex Numbers","Binomial Theorem","Permutations & Combinations","Probability","Statistics","Matrices","Determinants","Straight Lines","Circle","Parabola","Ellipse","Hyperbola","Limits","Continuity & Differentiability","Application of Derivatives","Indefinite Integration","Definite Integration","Area Under Curve","Differential Equations","Vector Algebra","3D Geometry"]
+};
+function populateLessons(){const subject=document.getElementById('subject').value,sel=document.getElementById('topic');sel.innerHTML='<option value="">Choose lesson</option>'+(lessonLists[subject]||[]).map(x=>`<option>${esc(x)}</option>`).join('')+'<option value="Other">Other / custom lesson</option>';}
+document.getElementById('subject').addEventListener('change',populateLessons);populateLessons();
 
 document.getElementById('studyForm').onsubmit=e=>{
  e.preventDefault();
@@ -783,11 +794,13 @@ function renderMistakes(){
 
 /* ===== Tests ===== */
 let tests=JSON.parse(localStorage.getItem('jeeTests')||'[]');
+let testFilter='all';
 function saveTests(){localStorage.setItem('jeeTests',JSON.stringify(tests))}
 document.getElementById('testDate').value=todayKey();
 document.getElementById('testForm').addEventListener('submit', function(e){
   e.preventDefault();
 
+  const type = document.getElementById('testType').value || 'Mains';
   const name = document.getElementById('testName').value.trim();
   const date = document.getElementById('testDate').value || todayKey();
   const phy = Number(document.getElementById('testPhy').value) || 0;
@@ -803,6 +816,7 @@ document.getElementById('testForm').addEventListener('submit', function(e){
 
   tests.push({
     id: Date.now(),
+    type,
     name,
     date,
     phy,
@@ -823,22 +837,13 @@ document.getElementById('testForm').addEventListener('submit', function(e){
   toast('Test result saved 📈');
 });
 
+function setTestFilter(filter,el){testFilter=filter;document.querySelectorAll('#testFilters .analytics-tab').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');renderTests();}
 function renderTests(){
-  const total=tests.length,avg=total?Math.round(tests.reduce((a,x)=>a+x.total,0)/total):0,best=total?Math.max(...tests.map(x=>x.total)):0;
-  document.getElementById('testTotal').textContent=total;
-  document.getElementById('testAvg').textContent=avg;
-  document.getElementById('testBest').textContent=best;
-  const tb=document.getElementById('testTable');
-  if(!tests.length){tb.innerHTML='<tr><td colspan="8" class="empty">No tests recorded yet.</td></tr>';return}
-  tb.innerHTML=tests.map((x,i)=>{
-    const prev=tests[i+1],trend=prev?(x.total>prev.total?'trend-up':x.total<prev.total?'trend-down':''):'';
-    return `<tr>
-      <td>${nice(x.date)}</td><td><b>${esc(x.name)}</b>${x.note?`<br><small style="color:var(--muted)">${esc(x.note)}</small>`:''}</td>
-      <td>${x.phy}</td><td>${x.chem}</td><td>${x.maths}</td>
-      <td class="score ${trend}">${x.total}</td><td>${x.accuracy?x.accuracy+'%':'—'}</td>
-      <td><button class="btn danger" onclick="deleteTest(${x.id})">×</button></td>
-    </tr>`;
-  }).join('');
+ const filtered=tests.filter(x=>testFilter==='all'||(x.type||'Unspecified')===testFilter);
+ const total=filtered.length,avg=total?Math.round(filtered.reduce((a,x)=>a+x.total,0)/total):0,best=total?Math.max(...filtered.map(x=>x.total)):0;
+ document.getElementById('testTotal').textContent=total;document.getElementById('testAvg').textContent=avg;document.getElementById('testBest').textContent=best;
+ const tb=document.getElementById('testTable');if(!filtered.length){tb.innerHTML='<tr><td colspan="9" class="empty">No tests in this category yet.</td></tr>';return}
+ tb.innerHTML=filtered.map((x,i)=>{const prev=filtered[i+1],trend=prev?(x.total>prev.total?'trend-up':x.total<prev.total?'trend-down':''):'';const type=x.type||'Unspecified';const badge=type==='Advanced'?'JEE Advanced':type==='Mains'?'JEE Main':'Older';return `<tr><td>${nice(x.date)}</td><td><span class="pill">${badge}</span></td><td><b>${esc(x.name)}</b>${x.note?`<br><small style="color:var(--muted)">${esc(x.note)}</small>`:''}</td><td>${x.phy}</td><td>${x.chem}</td><td>${x.maths}</td><td class="score ${trend}">${x.total}</td><td>${x.accuracy?x.accuracy+'%':'—'}</td><td><button class="btn danger" onclick="deleteTest(${x.id})">×</button></td></tr>`;}).join('');
 }
 function deleteTest(id){tests=tests.filter(x=>x.id!==id);saveTests();renderTests()}
 function clearTests(){if(confirm('Delete all test results?')){tests=[];saveTests();renderTests();toast('Test history cleared')}}
