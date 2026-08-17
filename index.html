@@ -45,6 +45,10 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
 .timer-subject select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:#0e1118;color:var(--text)}
 .timer-stat{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:12px}
 .timer-stat b{color:var(--text)}
+.timer-running{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:6px 10px;border-radius:999px;background:#102719;color:#6ee7a0;font-size:11px;font-weight:800}
+.timer-running .dot-run{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px #22c55e22;animation:pulseRun 1.4s infinite}
+.timer-background-note{margin-top:10px;color:var(--muted);font-size:11px}
+@keyframes pulseRun{50%{opacity:.45;transform:scale(.8)}}
 @media(max-width:650px){.subject-summary{grid-template-columns:1fr}.bar-chart{gap:5px}.bar-label{font-size:9px}.analytics-tabs{width:100%}.analytics-tab{flex:1;padding:8px 6px}}
 
 /* JEE planning / mistake / test tracker */
@@ -206,7 +210,7 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
 </section>
 <section id="analytics" class="page">
   <div class="top">
-    <div><div class="eyebrow">YOUR STUDY DATA</div><h1>Study Analytics</h1><div class="date">Only time spent while the focus timer is running is counted.</div></div>
+    <div><div class="eyebrow">YOUR STUDY DATA</div><h1>Study Analytics</h1><div class="date">New timer time is counted automatically; your previous 484-hour history is preserved as a lifetime baseline.</div></div>
     <button class="btn ghost" onclick="renderAnalytics()">↻ Refresh</button>
   </div>
 
@@ -214,7 +218,12 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
     <div class="stat"><div class="label">Today</div><div class="num" id="anaToday">0m</div></div>
     <div class="stat"><div class="label">This week</div><div class="num" id="anaWeek">0h</div></div>
     <div class="stat"><div class="label">This month</div><div class="num" id="anaMonth">0h</div></div>
-    <div class="stat"><div class="label">Total focus</div><div class="num" id="anaTotal">0h</div></div>
+    <div class="stat"><div class="label">Lifetime focus</div><div class="num" id="anaTotal">484h</div></div>
+  </div>
+  <div class="mini-grid" style="margin-top:14px">
+    <div class="mini-stat"><span class="date">PREVIOUS APP</span><b id="legacyHours">484h</b><span class="date">historical focus</span></div>
+    <div class="mini-stat"><span class="date">DAYS ACCESSED</span><b id="legacyDays">136</b><span class="date">historical</span></div>
+    <div class="mini-stat"><span class="date">OLD STREAK</span><b id="legacyStreak">28</b><span class="date">days</span></div>
   </div>
 
   <div class="analytics-wrap">
@@ -271,6 +280,8 @@ button,input,select{font:inherit}.app{display:flex;min-height:100vh}.sidebar{wid
         <span>Today: <b id="timerToday">0m</b></span>
         <span>Sessions: <b id="sessionCount">0</b></span>
       </div>
+      <div id="timerRunning" class="timer-running" style="display:none"><span class="dot-run"></span><span>Timer running in background</span></div>
+      <div class="timer-background-note">Switch tabs, open PDFs or lectures — the timer follows real clock time.</div>
       <div class="timer-info">Focus sessions automatically add to <b style="color:white">Study Analytics</b>. A normal break is 5 minutes; after 4 completed focus sessions, the next break is 15 minutes.</div>
     </div>
   </div>
@@ -377,6 +388,46 @@ let focusSessions=Number(localStorage.getItem('pomodoroSessions')||0);
 let analyticsRange='week';
 let studyLog=JSON.parse(localStorage.getItem('jeeStudyTimeLog')||'{}');
 
+// Persistent wall-clock timer state. This is what makes tab switching safe.
+let timerEndAt=null;
+let timerSegmentStart=null;
+let timerSegmentLogged=0;
+const TIMER_STATE_KEY='jeeTimerStateV2';
+const LEGACY_FOCUS_HOURS=484;
+const LEGACY_ACCESS_DAYS=136;
+const LEGACY_STREAK=28;
+
+function saveTimerState(){
+  localStorage.setItem(TIMER_STATE_KEY,JSON.stringify({
+    mode:timerMode, focusMinutes, remaining, endAt:timerEndAt,
+    running:!!timerId, segmentStart:timerSegmentStart, segmentLogged:timerSegmentLogged
+  }));
+}
+function loadTimerState(){
+  try{
+    const s=JSON.parse(localStorage.getItem(TIMER_STATE_KEY)||'null');
+    if(!s)return;
+    timerMode=s.mode==='break'?'break':'focus';
+    focusMinutes=Number(s.focusMinutes)||60;
+    remaining=Math.max(0,Number(s.remaining)||0);
+    timerEndAt=s.endAt?Number(s.endAt):null;
+    timerSegmentStart=s.segmentStart?Number(s.segmentStart):null;
+    timerSegmentLogged=Number(s.segmentLogged)||0;
+
+    if(s.running && timerEndAt){
+      remaining=Math.max(0,(timerEndAt-Date.now())/1000);
+      if(remaining>0){
+        timerId=setInterval(timerTick,250);
+      }else{
+        // The session finished while this tab was away.
+        timerTick();
+      }
+    }
+  }catch(e){
+    localStorage.removeItem(TIMER_STATE_KEY);
+  }
+}
+
 function logKey(){return todayKey()}
 function saveStudyLog(){localStorage.setItem('jeeStudyTimeLog',JSON.stringify(studyLog))}
 function addFocusSecond(subject){
@@ -414,51 +465,179 @@ function rangeSeconds(start,end){
   while(cur<=end){total+=secondsForDate(key(cur));cur.setDate(cur.getDate()+1)}
   return total;
 }
+
+function timerTitle(){
+  const total=Math.max(0,Math.ceil(remaining));
+  const m=Math.floor(total/60),s=total%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} • ${timerMode==='focus'?'Focus':'Break'} • JEE`;
+}
+
 function updateTimer(){
-  const m=Math.floor(remaining/60),sec=remaining%60;
+  const total=Math.max(0,Math.ceil(remaining));
+  const m=Math.floor(total/60),sec=total%60;
   document.getElementById('timerDisplay').textContent=`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
   document.getElementById('timerMode').textContent=timerMode==='focus'?'Focus':'Break';
   document.getElementById('timerStart').textContent=timerId?'⏸ Pause':'▶ Start';
   document.getElementById('sessionCount').textContent=focusSessions;
   document.getElementById('timerToday').textContent=fmtTime(secondsForDate(todayKey()));
+  const run=document.getElementById('timerRunning');
+  if(run)run.style.display=timerId?'inline-flex':'none';
+
+  // This changes the browser tab title, so the timer remains visible
+  // even while the user is working in another tab.
+  document.title=timerId?timerTitle():'JEE Revise — Spaced Revision';
 }
-function toggleTimer(){
-  if(timerId){clearInterval(timerId);timerId=null;updateTimer();return}
-  timerId=setInterval(()=>{
-    if(timerMode==='focus')addFocusSecond(document.getElementById('timerSubject').value);
-    remaining--;
-    if(remaining<=0){clearInterval(timerId);timerId=null;finishTimer()}
-    updateTimer();
-  },1000);
+
+function logFocusElapsed(now){
+  if(timerMode!=='focus' || !timerSegmentStart)return;
+  const segmentElapsed=Math.max(0,(now-timerSegmentStart)/1000);
+  const delta=segmentElapsed-timerSegmentLogged;
+  if(delta<0)return;
+  if(delta>=0.25){
+    const subject=document.getElementById('timerSubject')?.value||'Physics';
+    const d=logKey();
+    if(!studyLog[d])studyLog[d]={Physics:0,Chemistry:0,Maths:0};
+    if(!studyLog[d][subject])studyLog[d][subject]=0;
+    studyLog[d][subject]+=delta;
+    timerSegmentLogged=segmentElapsed;
+    saveStudyLog();
+  }
+}
+
+function timerTick(){
+  if(!timerId || !timerEndAt)return;
+  const now=Date.now();
+  remaining=Math.max(0,(timerEndAt-now)/1000);
+  logFocusElapsed(now);
+
+  if(remaining<=0){
+    remaining=0;
+    finishTimer();
+    return;
+  }
+  saveTimerState();
   updateTimer();
 }
+
+function startRunningTimer(){
+  if(timerId)return;
+  const now=Date.now();
+  timerEndAt=now+remaining*1000;
+  timerSegmentStart=now;
+  timerSegmentLogged=0;
+  timerId=setInterval(timerTick,250);
+  saveTimerState();
+  updateTimer();
+}
+
+function toggleTimer(){
+  if(timerId){
+    const now=Date.now();
+    remaining=Math.max(0,(timerEndAt-now)/1000);
+    logFocusElapsed(now);
+    clearInterval(timerId);
+    timerId=null;
+    timerEndAt=null;
+    timerSegmentStart=null;
+    timerSegmentLogged=0;
+    saveTimerState();
+    updateTimer();
+    return;
+  }
+  if(remaining<=0)remaining=focusMinutes*60;
+  startRunningTimer();
+}
+
 function finishTimer(){
-  if(timerMode==='focus'){
+  const wasFocus=timerMode==='focus';
+  if(timerId)clearInterval(timerId);
+  timerId=null;
+
+  if(wasFocus){
+    // Log the final part of the focus session before switching modes.
+    logFocusElapsed(Date.now());
     focusSessions++;
     localStorage.setItem('pomodoroSessions',focusSessions);
+
     timerMode='break';
     remaining=(focusSessions%4===0?15:5)*60;
-    toast(focusSessions%4===0?'4 focus sessions done! Take a 15-minute break 🧘':'Focus session complete! Take a 5-minute break ☕');
+    timerSegmentStart=null;
+    timerSegmentLogged=0;
+
+    toast(focusSessions%4===0
+      ?'4 focus sessions done! 15-minute break 🧘'
+      :'Focus session complete! 5-minute break ☕');
+
+    // Automatically start the break.
+    startRunningTimer();
   }else{
-    timerMode='focus';remaining=focusMinutes*60;
-    toast('Break over — back to focus 🚀');
+    timerMode='focus';
+    remaining=focusMinutes*60;
+    timerEndAt=null;
+    timerSegmentStart=null;
+    timerSegmentLogged=0;
+    saveTimerState();
+    toast('Break over — ready for the next focus session 🚀');
+    updateTimer();
   }
-  updateTimer();
   renderAnalytics();
 }
+
 function resetTimer(){
   if(timerId)clearInterval(timerId);
-  timerId=null;timerMode='focus';remaining=focusMinutes*60;updateTimer();
+  timerId=null;
+  timerMode='focus';
+  remaining=focusMinutes*60;
+  timerEndAt=null;
+  timerSegmentStart=null;
+  timerSegmentLogged=0;
+  saveTimerState();
+  updateTimer();
 }
+
 function skipTimer(){
   if(timerId)clearInterval(timerId);
-  timerId=null;finishTimer();
+  timerId=null;
+  timerEndAt=null;
+  if(timerMode==='focus'){
+    timerMode='break';
+    remaining=(focusSessions%4===0?15:5)*60;
+    toast('Focus skipped — break started.');
+    startRunningTimer();
+  }else{
+    timerMode='focus';
+    remaining=focusMinutes*60;
+    saveTimerState();
+    updateTimer();
+  }
 }
+
 function setFocus(min,el){
   focusMinutes=min;
   document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));
-  el.classList.add('active');resetTimer();
+  el.classList.add('active');
+  resetTimer();
 }
+
+function restoreTimerOnReturn(){
+  if(!timerId)return;
+  timerTick();
+  updateTimer();
+}
+
+document.addEventListener('visibilitychange',restoreTimerOnReturn);
+window.addEventListener('focus',restoreTimerOnReturn);
+window.addEventListener('pageshow',restoreTimerOnReturn);
+window.addEventListener('beforeunload',function(){
+  if(timerId){
+    const now=Date.now();
+    remaining=Math.max(0,(timerEndAt-now)/1000);
+    logFocusElapsed(now);
+    saveTimerState();
+  }
+});
+
+loadTimerState();
 function setAnalyticsRange(range,el){
   analyticsRange=range;
   document.querySelectorAll('.analytics-tab').forEach(x=>x.classList.remove('active'));
@@ -472,7 +651,10 @@ function renderAnalytics(){
   document.getElementById('anaWeek').textContent=fmtTime(rangeSeconds(ws,now));
   document.getElementById('anaMonth').textContent=fmtTime(rangeSeconds(ms,now));
   let total=0;Object.keys(studyLog).forEach(d=>total+=secondsForDate(d));
-  document.getElementById('anaTotal').textContent=fmtTime(total);
+  document.getElementById('anaTotal').textContent=fmtTime(LEGACY_FOCUS_HOURS*3600+total);
+  document.getElementById('legacyHours').textContent=LEGACY_FOCUS_HOURS+'h';
+  document.getElementById('legacyDays').textContent=LEGACY_ACCESS_DAYS;
+  document.getElementById('legacyStreak').textContent=LEGACY_STREAK;
 
   let dates=[],labels=[];
   if(analyticsRange==='week'){
@@ -663,63 +845,5 @@ function clearTests(){if(confirm('Delete all test results?')){tests=[];saveTests
 
 render();
 </script>
-<datalist id="jeeLessonList"></datalist>
-
-<script>
-(function(){
-  const lessons = {"Physics": ["Units & Measurements", "Kinematics", "Laws of Motion", "Work, Energy & Power", "Centre of Mass & Collisions", "Rotational Motion", "Gravitation", "Properties of Solids", "Properties of Fluids", "Thermal Properties", "Thermodynamics", "Kinetic Theory", "Oscillations", "Waves", "Electrostatics", "Capacitance", "Current Electricity", "Moving Charges & Magnetism", "Magnetism & Matter", "Electromagnetic Induction", "Alternating Current", "Electromagnetic Waves", "Ray Optics", "Wave Optics", "Dual Nature", "Atoms", "Nuclei", "Semiconductors"], "Chemistry": ["Some Basic Concepts / Mole Concept", "Atomic Structure", "Periodic Table", "Chemical Bonding", "States of Matter", "Thermodynamics", "Equilibrium", "Redox Reactions", "Solutions", "Electrochemistry", "Chemical Kinetics", "Surface Chemistry", "p-Block", "d- and f-Block", "Coordination Compounds", "Organic Chemistry Basics", "Hydrocarbons", "Haloalkanes & Haloarenes", "Alcohols, Phenols & Ethers", "Aldehydes, Ketones & Carboxylic Acids", "Amines", "Biomolecules", "Polymers", "Practical Chemistry"], "Maths": ["Sets, Relations & Functions", "Quadratic Equations", "Sequences & Series", "Trigonometry", "Complex Numbers", "Permutations & Combinations", "Binomial Theorem", "Straight Lines", "Circles", "Conic Sections", "Limits & Continuity", "Differentiation", "Application of Derivatives", "Indefinite Integration", "Definite Integration", "Area Under Curves", "Differential Equations", "Matrices", "Determinants", "Vectors", "3D Geometry", "Probability", "Statistics"]};
-  const subject = document.getElementById("subject") || document.querySelector('select[name="subject"], input[name="subject"]');
-  const lesson = document.getElementById("chapter");
-  const list = document.getElementById("jeeLessonList");
-  if(!lesson || !list) return;
-  lesson.setAttribute("list","jeeLessonList");
-
-  function updateLessonList(){
-    const key = subject ? subject.value : "";
-    const arr = lessons[key] || Object.values(lessons).flat();
-    list.innerHTML = arr.map(x => '<option value="' + x.replace(/"/g,'&quot;') + '"></option>').join("");
-  }
-  if(subject) subject.addEventListener("change", updateLessonList);
-  updateLessonList();
-})();
-</script>
-
-
-<script id="AUTO_BREAK_PATCH">
-(function(){
-  // This patch watches the visible timer and switches Study -> Break at 00:00.
-  // It is intentionally isolated so existing localStorage/data logic remains untouched.
-  let switched = false;
-  function textOf(el){ return el ? (el.textContent || "").trim() : ""; }
-
-  function findTimer(){
-    const candidates = [
-      document.getElementById("timerDisplay"),
-      document.getElementById("timer"),
-      document.querySelector(".timer-display"),
-      document.querySelector("[class*='timer'][class*='display']")
-    ];
-    return candidates.find(Boolean);
-  }
-
-  function clickBreak(){
-    const buttons = [...document.querySelectorAll("button")];
-    const b = buttons.find(x => /break/i.test(x.textContent||""));
-    if(b) b.click();
-  }
-
-  setInterval(function(){
-    const el = findTimer();
-    if(!el) return;
-    const t = textOf(el);
-    if((t === "00:00" || t === "0:00") && !switched){
-      switched = true;
-      clickBreak();
-      setTimeout(()=>switched=false, 1500);
-    }
-  }, 250);
-})();
-</script>
-
 </body>
 </html>
